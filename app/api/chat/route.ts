@@ -1,4 +1,4 @@
-import { experimental_groq as groq } from "@ai-sdk/groq"
+import { groq } from "@ai-sdk/groq"
 import { streamText } from "ai"
 import { StreamingTextResponse } from "ai"
 
