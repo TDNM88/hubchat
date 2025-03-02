@@ -1,15 +1,13 @@
 "use client"
 
 import { useState, useEffect, useCallback } from "react"
+import { nanoid } from "@/lib/nanoid"
 import { Plus, MessageSquare } from "lucide-react"
-import { nanoid } from "nanoid"
-
-import { Button } from "@/components/ui/button"
-import { Chat } from "@/components/chat"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { Tooltip, TooltipProvider, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
+import { Chat } from "@/components/chat"
+import { ChatSettings } from "@/components/chat-settings"
 
-export type ChatSession = {
+interface ChatSession {
   id: string
   name: string
   model: string
@@ -35,7 +33,7 @@ export function ChatWithSessions() {
       setSessions([defaultSession])
       setActiveSessionId(defaultSession.id)
     }
-  }, [sessions.length]) // Added sessions.length as a dependency
+  }, [sessions.length])
 
   const createNewSession = useCallback(() => {
     const newSession: ChatSession = {
@@ -52,7 +50,7 @@ export function ChatWithSessions() {
 
   const updateSession = useCallback((sessionId: string, updates: Partial<ChatSession>) => {
     setSessions((prevSessions) =>
-      prevSessions.map((session) => (session.id === sessionId ? { ...session, ...updates } : session)),
+      prevSessions.map((session) => (session.id === sessionId ? { ...session, ...updates } : session))
     )
   }, [])
 
@@ -60,60 +58,49 @@ export function ChatWithSessions() {
     (sessionId: string, model: string, temperature: number, maxTokens: number) => {
       updateSession(sessionId, { model, temperature, maxTokens })
     },
-    [updateSession],
+    [updateSession]
   )
 
   const activeSession = sessions.find((session) => session.id === activeSessionId)
 
   return (
-    <TooltipProvider>
-      <div className="flex h-[calc(100vh-4rem)]">
-        {/* Sidebar */}
-        <div className="w-64 border-r bg-muted/40">
-          <div className="flex h-14 items-center justify-between px-4 border-b">
-            <h2 className="text-sm font-semibold">Cuộc trò chuyện</h2>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button variant="ghost" size="icon" onClick={createNewSession}>
-                  <Plus className="h-4 w-4" />
-                  <span className="sr-only">Thêm cuộc trò chuyện mới</span>
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent side="right">Thêm cuộc trò chuyện mới</TooltipContent>
-            </Tooltip>
-          </div>
-          <ScrollArea className="h-[calc(100vh-8rem)]">
-            <div className="p-2 space-y-2">
-              {sessions.map((session) => (
-                <Button
-                  key={session.id}
-                  variant={session.id === activeSessionId ? "secondary" : "ghost"}
-                  className="w-full justify-start text-left"
-                  onClick={() => setActiveSessionId(session.id)}
-                >
-                  <MessageSquare className="mr-2 h-4 w-4" />
-                  <span className="truncate">{session.name}</span>
-                </Button>
-              ))}
+    <div className="flex h-full">
+      <div className="w-64 border-r p-4">
+        <button
+          onClick={createNewSession}
+          className="mb-4 flex w-full items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
+        >
+          <Plus className="h-4 w-4" />
+          Tạo phiên mới
+        </button>
+        <ScrollArea className="h-[calc(100vh-120px)]">
+          {sessions.map((session) => (
+            <div
+              key={session.id}
+              onClick={() => setActiveSessionId(session.id)}
+              className={`mb-2 flex cursor-pointer items-center gap-2 rounded-md p-2 text-sm ${
+                session.id === activeSessionId
+                  ? "bg-primary text-primary-foreground"
+                  : "hover:bg-accent"
+              }`}
+            >
+              <MessageSquare className="h-4 w-4" />
+              {session.name}
             </div>
-          </ScrollArea>
-        </div>
-
-        {/* Chat Area */}
-        <div className="flex-1">
-          {activeSession && (
-            <Chat
-              key={activeSession.id}
-              sessionId={activeSession.id}
-              initialModel={activeSession.model}
-              initialTemperature={activeSession.temperature}
-              initialMaxTokens={activeSession.maxTokens}
-              onSettingsChange={handleSettingsChange}
-            />
-          )}
-        </div>
+          ))}
+        </ScrollArea>
       </div>
-    </TooltipProvider>
+      <div className="flex-1">
+        {activeSession && (
+          <Chat
+            sessionId={activeSession.id}
+            initialModel={activeSession.model}
+            initialTemperature={activeSession.temperature}
+            initialMaxTokens={activeSession.maxTokens}
+            onSettingsChange={handleSettingsChange}
+          />
+        )}
+      </div>
+    </div>
   )
 }
-
