@@ -62,7 +62,7 @@
     "@types/react-dom": "latest",
     "ai": "latest",
     "@ai-sdk/groq": "latest",
-    "groq-sdk": "^0.1.0",
+    "groq-sdk": "latest",
     "nanoid": "latest"
   },
   "devDependencies": {
