@@ -1,8 +1,11 @@
-import { StreamingTextResponse } from "ai"
 import { experimental_groq as groq } from "@ai-sdk/groq"
 import { streamText } from "ai"
+import { StreamingTextResponse } from "ai"
 
-export const runtime = "nodejs"
+// Configure Groq client
+const groqClient = groq({
+  apiKey: process.env.GROQ_API_KEY
+})
 
 export async function POST(req: Request) {
   try {
@@ -25,7 +28,7 @@ export async function POST(req: Request) {
 
     // Stream the response
     const result = await streamText({
-      model: groq(model),
+      model: groqClient(model),
       prompt,
       system,
       temperature,
@@ -42,4 +45,3 @@ export async function POST(req: Request) {
     })
   }
 }
-
